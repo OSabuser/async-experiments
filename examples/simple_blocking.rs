@@ -1,17 +1,23 @@
-use reqwest::Error;
-use std::time::Instant;
+use std::{error::Error, time::Instant};
+
+async fn test_loop(task_number: u8) {
+    for i in 0..10 {
+        println!("Task #{task_number}: {}", i);
+        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+    }
+}
 
 #[tokio::main]
-async fn main() -> Result<(), Error> {
-    let url = "https://jsonplaceholder.typicode.com/posts/1";
+async fn main() -> Result<(), Box<dyn Error>> {
     let start = Instant::now();
-    let response_1 = reqwest::get(url).await?;
-    let response_2 = reqwest::get(url).await?; // Выполняется только после завершения предыдущего
-    let response_3 = reqwest::get(url).await?; // Выполняется только после завершения предыдущего
-    let elapsed = start.elapsed(); // 550 ms
-    println!("Elapsed: {:.2?}", elapsed);
-    println!("Response 1: {}", response_1.text().await?);
-    println!("Response 2: {}", response_2.text().await?); // Выполняется только после завершения предыдущего
-    println!("Respons 3: {}", response_3.text().await?); // Выполняется только после завершения предыдущего
+
+    let _task_1 = test_loop(1).await;
+    let _task_2 = test_loop(2).await;
+
+    // Запуск нескольких конкурентных задач одновременно
+
+    let elapsed = start.elapsed();
+    println!("Все задачи выполнены за: {:.2?} мс", elapsed.as_millis());
+
     Ok(())
 }
